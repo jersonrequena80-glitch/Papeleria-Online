@@ -3,6 +3,7 @@ package com.mycompany.papeleria.online.config;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Conexion {
     // Cargamos el archivo .env
@@ -16,9 +17,8 @@ public class Conexion {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USER, PASS);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Error de conexión: " + e.getMessage());
-            e.printStackTrace();
             return null;
         }
     }
