@@ -6,6 +6,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 // Esta anotación permite que el navegador encuentre el código en /ProductoServlet
 @WebServlet(name = "ProductoServlet", urlPatterns = {"/ProductoServlet"})
@@ -49,10 +51,15 @@ public class ProductoServlet extends HttpServlet {
             }
         } catch (NumberFormatException e) {
             request.setAttribute("mensaje", "Error: Precio y Stock deben ser números válidos.");
-        } catch (Exception e) {
+        } catch (ServletException | IOException | SQLException e) {
             request.setAttribute("mensaje", "Error al guardar: " + e.getMessage());
         }
-        
+Connection con = com.mycompany.papeleria.online.config.Conexion.getConnection();
+if (con == null) {
+    request.setAttribute("mensaje", "Error: No se pudo conectar a la base de datos. Revisa la consola.");
+    request.getRequestDispatcher("index.jsp").forward(request, response);
+    return; // Detiene la ejecución para que no salga el error de "con is null"
+}        
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }

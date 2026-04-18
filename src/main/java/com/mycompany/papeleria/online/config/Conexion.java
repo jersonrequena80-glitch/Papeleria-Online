@@ -13,9 +13,10 @@ public class Conexion {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USER, PASS);
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error de conexión: " + e.getMessage());
+        }// Cambia esto en Conexion.java
+             catch (ClassNotFoundException | SQLException e) { // Esto imprimirá el error real (ej. "Access denied" o "Database not found")
+            // Esto imprimirá el error real (ej. "Access denied" o "Database not found")
             return null;
-        }
+}
     }
 }
