@@ -6,7 +6,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 // Esta anotación permite que el navegador encuentre el código en /ProductoServlet
@@ -39,27 +38,40 @@ public class ProductoServlet extends HttpServlet {
             double precio = Double.parseDouble(precioStr);
             int stock = Integer.parseInt(stockStr);
             
-            try (java.sql.Connection con = com.mycompany.papeleria.online.config.Conexion.getConnection();
-                 java.sql.PreparedStatement ps = con.prepareStatement("INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)")) {
-                
+            // Obtener conexión y verificar que no sea null
+            java.sql.Connection con = com.mycompany.papeleria.online.config.Conexion.getConnection();
+            if (con == null) {
+                request.setAttribute("mensaje", "Error: No se pudo conectar a la base de datos. Verifica la consola para más detalles.");
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+                return;
+            }
+            
+            try (java.sql.PreparedStatement ps = con.prepareStatement("INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)")) {
                 ps.setString(1, nombre);
                 ps.setDouble(2, precio);
                 ps.setInt(3, stock);
                 ps.executeUpdate();
                 
                 request.setAttribute("mensaje", "Producto '" + nombre + "' guardado en base de datos.");
+            } catch (SQLException e) {
+                request.setAttribute("mensaje", "Error al guardar: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (con != null) {
+                    try {
+                        con.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         } catch (NumberFormatException e) {
             request.setAttribute("mensaje", "Error: Precio y Stock deben ser números válidos.");
-        } catch (ServletException | IOException | SQLException e) {
-            request.setAttribute("mensaje", "Error al guardar: " + e.getMessage());
+        } catch (Exception e) {
+            request.setAttribute("mensaje", "Error inesperado: " + e.getMessage());
+            e.printStackTrace();
         }
-Connection con = com.mycompany.papeleria.online.config.Conexion.getConnection();
-if (con == null) {
-    request.setAttribute("mensaje", "Error: No se pudo conectar a la base de datos. Revisa la consola.");
-    request.getRequestDispatcher("index.jsp").forward(request, response);
-    return; // Detiene la ejecución para que no salga el error de "con is null"
-}        
+        
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
