@@ -1,6 +1,5 @@
 package com.mycompany.papeleria.online.servlet;
 
-import com.mycompany.papeleria.online.model.Producto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -23,20 +22,37 @@ public class ProductoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Capturar datos del formulario
-        String nombre = request.getParameter("txtNombre");
-        String precioStr = request.getParameter("txtPrecio");
-        String stockStr = request.getParameter("txtStock");
-
-        // 2. Validar y convertir datos
-        double precio = Double.parseDouble(precioStr);
-        int stock = Integer.parseInt(stockStr);
-
-        // 3. Crear objeto (Simulación de lógica de negocio)
-        Producto nuevoProd = new Producto(0, nombre, precio, stock);
-
-        // 4. Enviar mensaje de éxito a la vista
-        request.setAttribute("mensaje", "Producto '" + nuevoProd.getNombre() + "' registrado correctamente.");
+        try {
+            String nombre = request.getParameter("txtNombre");
+            String precioStr = request.getParameter("txtPrecio");
+            String stockStr = request.getParameter("txtStock");
+            
+            // Validar que los parámetros no sean nulos
+            if (nombre == null || nombre.trim().isEmpty() || precioStr == null || stockStr == null) {
+                request.setAttribute("mensaje", "Error: Todos los campos son obligatorios.");
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+                return;
+            }
+            
+            double precio = Double.parseDouble(precioStr);
+            int stock = Integer.parseInt(stockStr);
+            
+            try (java.sql.Connection con = com.mycompany.papeleria.online.config.Conexion.getConnection();
+                 java.sql.PreparedStatement ps = con.prepareStatement("INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)")) {
+                
+                ps.setString(1, nombre);
+                ps.setDouble(2, precio);
+                ps.setInt(3, stock);
+                ps.executeUpdate();
+                
+                request.setAttribute("mensaje", "Producto '" + nombre + "' guardado en base de datos.");
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("mensaje", "Error: Precio y Stock deben ser números válidos.");
+        } catch (Exception e) {
+            request.setAttribute("mensaje", "Error al guardar: " + e.getMessage());
+        }
+        
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
