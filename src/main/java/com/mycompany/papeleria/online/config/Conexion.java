@@ -16,8 +16,8 @@ public class Conexion {
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error al conectar a la base de datos:");
             System.err.println("Detalle: " + e.getMessage());
-            e.printStackTrace();
             return null;
         }
     }
+    
 }
