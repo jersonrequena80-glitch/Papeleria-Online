@@ -23,17 +23,18 @@ public class Conexion {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USER, PASS);
         } catch (ClassNotFoundException e) {
-            System.err.println("Driver MySQL no encontrado: " + e.getMessage());
+            System.err.println("ERROR: Driver MySQL no encontrado");
             e.printStackTrace();
             return null;
         } catch (SQLException e) {
-            System.err.println("Error de conexión a la base de datos: " + e.getMessage());
+            System.err.println("ERROR: No se pudo conectar a la base de datos");
             System.err.println("URL: " + URL);
             System.err.println("Usuario: " + USER);
+            System.err.println("Detalle: " + e.getMessage());
             e.printStackTrace();
             return null;
         } catch (Exception e) {
-            System.err.println("Error inesperado: " + e.getMessage());
+            System.err.println("ERROR inesperado: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
