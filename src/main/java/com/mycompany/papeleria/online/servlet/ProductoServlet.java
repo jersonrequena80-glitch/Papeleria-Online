@@ -55,17 +55,20 @@ public class ProductoServlet extends HttpServlet {
                 request.setAttribute("mensaje", "Producto '" + nombre + "' guardado en base de datos.");
             } catch (SQLException e) {
                 request.setAttribute("mensaje", "Error al guardar: " + e.getMessage());
+                e.printStackTrace();
             } finally {
                 if (con != null) {
                     try {
                         con.close();
                     } catch (SQLException e) {
+                        e.printStackTrace();
                     }
                 }
             }
         } catch (NumberFormatException e) {
             request.setAttribute("mensaje", "Error: Precio y Stock deben ser números válidos.");
-        } catch (ServletException | IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             request.setAttribute("mensaje", "Error inesperado: " + e.getMessage());
         }
         
